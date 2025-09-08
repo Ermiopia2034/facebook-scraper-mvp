@@ -41,13 +41,14 @@ export default function History() {
           <tbody>
             {jobs.map((job) => (
               <tr key={job.id} style={{ borderBottom: '1px solid #eee' }}>
-                <td style={{ padding: '0.5rem' }}>{job.group_url?.split('/').pop()}</td>
+                <td style={{ padding: '0.5rem' }}>{job.groupUrl?.split('/').pop()}</td>
                 <td style={{ padding: '0.5rem', maxWidth: '400px' }}>
-                  {job.post_text?.substring(0, 150)}...
+                  {job.postText?.substring(0, 150)}
+                  {job.postText?.length > 150 ? '...' : ''}
                 </td>
                 <td style={{ padding: '0.5rem' }}>{job.author}</td>
                 <td style={{ padding: '0.5rem' }}>
-                  {new Date(job.scraped_at).toLocaleDateString()}
+                  {new Date(job.postDate).toLocaleDateString()}
                 </td>
               </tr>
             ))}
