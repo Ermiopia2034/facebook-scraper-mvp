@@ -1,13 +1,10 @@
 import { ApifyClient } from 'apify-client';
-import { initDB, saveJobs } from '@/lib/db';
+import { saveJobs } from '@/lib/db';
 import { NextResponse } from 'next/server';
 
 export async function POST(request) {
   try {
     const { groupUrl } = await request.json();
-    
-    // Initialize DB
-    await initDB();
     
     // Initialize Apify client
     const client = new ApifyClient({
