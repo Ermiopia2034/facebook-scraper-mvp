@@ -28,13 +28,34 @@ export async function POST(request) {
     // Wait for results
     const { items } = await client.dataset(run.defaultDatasetId).listItems();
     
+    // Log first item for debugging
+    if (items.length > 0) {
+      console.log('Sample Apify item:', JSON.stringify(items[0], null, 2));
+    }
+    
     // Process and save jobs
-    const processedJobs = items.map(item => ({
-      text: item.text || item.message || '',
-      author: item.authorName || 'Unknown',
-      url: item.url || '',
-      date: item.time || new Date(),
-    }));
+    const processedJobs = items.map((item, index) => {
+      // Try different possible timestamp fields
+      const dateFields = ['publishedTime', 'createdTime', 'time', 'timestamp'];
+      let postDate = new Date();
+      
+      for (const field of dateFields) {
+        if (item[field]) {
+          postDate = new Date(item[field]);
+          break;
+        }
+      }
+      
+      // Try different possible URL fields
+      const postUrl = item.url || item.postUrl || item.permalink || item.facebookUrl || groupUrl;
+      
+      return {
+        text: item.text || `Post ${index + 1}`,
+        author: item.user?.name || item.authorName || item.author || 'Unknown',
+        url: postUrl,
+        date: postDate,
+      };
+    });
     
     await saveJobs(processedJobs, groupUrl);
     
