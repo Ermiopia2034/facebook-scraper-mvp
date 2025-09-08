@@ -11,13 +11,19 @@ export async function POST(request) {
       token: process.env.APIFY_TOKEN,
     });
     
-    // Start the Facebook Groups Scraper actor
-    const run = await client.actor('apify/facebook-groups-scraper').start({
-      groupUrls: [groupUrl],
-      maxPosts: 20, // Limit for testing
-      maxCommentsPerPost: 0,
-      maxReviewsPerPage: 0,
-    });
+    // Prepare Actor input
+    const input = {
+      "startUrls": [
+        {
+          "url": groupUrl
+        }
+      ],
+      "resultsLimit": 20,
+      "viewOption": "CHRONOLOGICAL"
+    };
+
+    // Run the Actor and wait for it to finish
+    const run = await client.actor("2chN8UQcH1CfxLRNE").call(input);
     
     // Wait for results
     const { items } = await client.dataset(run.defaultDatasetId).listItems();
