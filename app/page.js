@@ -139,6 +139,7 @@ export default function Home() {
                   borderRadius: '12px',
                   fontSize: '16px',
                   backgroundColor: '#f8f9fa',
+                  color: '#1c1e21',
                   transition: 'all 0.2s ease',
                   boxSizing: 'border-box'
                 }}
