@@ -4,6 +4,7 @@ import Link from 'next/link';
 
 export default function History() {
   const [jobs, setJobs] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [expandedPosts, setExpandedPosts] = useState(new Set());
 
@@ -12,6 +13,7 @@ export default function History() {
       .then(res => res.json())
       .then(data => {
         setJobs(data.jobs || []);
+        setTotalCount(data.totalCount || 0);
         setLoading(false);
       })
       .catch(() => {
@@ -119,7 +121,8 @@ export default function History() {
               color: '#65676b',
               fontSize: '16px'
             }}>
-              {jobs.length} scraped posts
+              {totalCount} scraped posts in database
+              {jobs.length < totalCount && ` (showing ${jobs.length})`}
             </p>
           </div>
           <Link href="/" style={{
