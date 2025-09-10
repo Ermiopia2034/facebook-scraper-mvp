@@ -1,18 +1,21 @@
-import { getJobs, getTotalJobCount } from '@/lib/db';
+import { getJobs, getTotalJobCount, getJobCountsByType } from '@/lib/db';
 import { NextResponse } from 'next/server';
 
 export async function GET(request) {
   try {
-    // Get limit from query params if provided
+    // Get query params
     const { searchParams } = new URL(request.url);
     const limit = searchParams.get('limit') ? parseInt(searchParams.get('limit')) : null;
+    const postType = searchParams.get('postType');
     
-    const jobs = await getJobs(limit);
-    const totalCount = await getTotalJobCount();
+    const jobs = await getJobs(limit, postType);
+    const totalCount = await getTotalJobCount(postType);
+    const counts = await getJobCountsByType();
     
     return NextResponse.json({ 
       jobs,
-      totalCount 
+      totalCount,
+      counts 
     });
   } catch (error) {
     console.error('Database error:', error);

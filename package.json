@@ -10,6 +10,7 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.21.0",
     "@prisma/client": "^6.15.0",
     "@vercel/postgres": "^0.5.1",
     "apify-client": "^2.16.0",

@@ -5,21 +5,27 @@ import Link from 'next/link';
 export default function History() {
   const [jobs, setJobs] = useState([]);
   const [totalCount, setTotalCount] = useState(0);
+  const [counts, setCounts] = useState({ jobOffers: 0, jobSeekers: 0, unclassified: 0, total: 0 });
   const [loading, setLoading] = useState(true);
   const [expandedPosts, setExpandedPosts] = useState(new Set());
+  const [activeTab, setActiveTab] = useState('all'); // 'all', 'job_offer', 'job_seeker', 'unclassified'
 
   useEffect(() => {
-    fetch('/api/jobs')
+    const postType = activeTab === 'all' ? null : activeTab;
+    const url = postType ? `/api/jobs?postType=${postType}` : '/api/jobs';
+    
+    fetch(url)
       .then(res => res.json())
       .then(data => {
         setJobs(data.jobs || []);
         setTotalCount(data.totalCount || 0);
+        setCounts(data.counts || { jobOffers: 0, jobSeekers: 0, unclassified: 0, total: 0 });
         setLoading(false);
       })
       .catch(() => {
         setLoading(false);
       });
-  }, []);
+  }, [activeTab]);
 
   const toggleExpanded = (jobId) => {
     const newExpanded = new Set(expandedPosts);
@@ -88,6 +94,17 @@ export default function History() {
           background: #e7f3ff !important;
           transform: scale(1.05);
         }
+        .tab-button {
+          transition: all 0.2s ease;
+          cursor: pointer;
+        }
+        .tab-button:hover {
+          background: #f0f2f5;
+        }
+        .tab-button.active {
+          background: #1877f2;
+          color: white;
+        }
       `}</style>
       
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
@@ -116,14 +133,19 @@ export default function History() {
             }}>
               📊 Facebook Groups History
             </h1>
-            <p style={{
+            <div style={{
               margin: '0.5rem 0 0 0',
               color: '#65676b',
-              fontSize: '16px'
+              fontSize: '14px',
+              display: 'flex',
+              gap: '1rem',
+              flexWrap: 'wrap'
             }}>
-              {totalCount} scraped posts in database
-              {jobs.length < totalCount && ` (showing ${jobs.length})`}
-            </p>
+              <span>📊 Total: {counts.total}</span>
+              <span style={{ color: '#059669' }}>💼 Job Offers: {counts.jobOffers}</span>
+              <span style={{ color: '#dc2626' }}>👤 Job Seekers: {counts.jobSeekers}</span>
+              <span style={{ color: '#6b7280' }}>❓ Unclassified: {counts.unclassified}</span>
+            </div>
           </div>
           <Link href="/" style={{
             background: '#1877f2',
@@ -141,6 +163,91 @@ export default function History() {
           }}>
             ← Back to Scraper
           </Link>
+        </div>
+
+        {/* Tab Navigation */}
+        <div style={{
+          background: '#ffffff',
+          borderRadius: '12px',
+          padding: '0.5rem',
+          marginBottom: '2rem',
+          boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
+          display: 'flex',
+          gap: '0.5rem',
+          flexWrap: 'wrap'
+        }}>
+          <button
+            className={`tab-button ${activeTab === 'all' ? 'active' : ''}`}
+            onClick={() => setActiveTab('all')}
+            style={{
+              padding: '10px 20px',
+              borderRadius: '8px',
+              border: 'none',
+              fontSize: '15px',
+              fontWeight: '600',
+              background: activeTab === 'all' ? '#1877f2' : 'transparent',
+              color: activeTab === 'all' ? '#ffffff' : '#1c1e21',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}
+          >
+            📊 All Posts ({counts.total})
+          </button>
+          <button
+            className={`tab-button ${activeTab === 'job_offer' ? 'active' : ''}`}
+            onClick={() => setActiveTab('job_offer')}
+            style={{
+              padding: '10px 20px',
+              borderRadius: '8px',
+              border: 'none',
+              fontSize: '15px',
+              fontWeight: '600',
+              background: activeTab === 'job_offer' ? '#059669' : 'transparent',
+              color: activeTab === 'job_offer' ? '#ffffff' : '#1c1e21',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}
+          >
+            💼 Job Offers ({counts.jobOffers})
+          </button>
+          <button
+            className={`tab-button ${activeTab === 'job_seeker' ? 'active' : ''}`}
+            onClick={() => setActiveTab('job_seeker')}
+            style={{
+              padding: '10px 20px',
+              borderRadius: '8px',
+              border: 'none',
+              fontSize: '15px',
+              fontWeight: '600',
+              background: activeTab === 'job_seeker' ? '#dc2626' : 'transparent',
+              color: activeTab === 'job_seeker' ? '#ffffff' : '#1c1e21',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}
+          >
+            👤 Job Seekers ({counts.jobSeekers})
+          </button>
+          <button
+            className={`tab-button ${activeTab === 'unclassified' ? 'active' : ''}`}
+            onClick={() => setActiveTab('unclassified')}
+            style={{
+              padding: '10px 20px',
+              borderRadius: '8px',
+              border: 'none',
+              fontSize: '15px',
+              fontWeight: '600',
+              background: activeTab === 'unclassified' ? '#6b7280' : 'transparent',
+              color: activeTab === 'unclassified' ? '#ffffff' : '#1c1e21',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}
+          >
+            ❓ Unclassified ({counts.unclassified})
+          </button>
         </div>
 
         {/* Posts */}
@@ -261,7 +368,8 @@ export default function History() {
                   paddingTop: '1rem',
                   borderTop: '1px solid #e4e6ea',
                   fontSize: '13px',
-                  color: '#65676b'
+                  color: '#65676b',
+                  flexWrap: 'wrap'
                 }}>
                   <span style={{
                     background: '#f0f2f5',
@@ -270,6 +378,20 @@ export default function History() {
                   }}>
                     Post ID: {job.id}
                   </span>
+                  {job.postType && (
+                    <span style={{
+                      background: job.postType === 'job_offer' ? '#d1fae5' : 
+                                 job.postType === 'job_seeker' ? '#fee2e2' : '#f3f4f6',
+                      color: job.postType === 'job_offer' ? '#059669' : 
+                             job.postType === 'job_seeker' ? '#dc2626' : '#6b7280',
+                      padding: '4px 8px',
+                      borderRadius: '12px',
+                      fontWeight: '600'
+                    }}>
+                      {job.postType === 'job_offer' ? '💼 Job Offer' : 
+                       job.postType === 'job_seeker' ? '👤 Job Seeker' : '❓ Unclassified'}
+                    </span>
+                  )}
                   <span style={{
                     background: '#e7f3ff',
                     padding: '4px 8px',
